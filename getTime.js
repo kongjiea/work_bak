@@ -151,7 +151,7 @@ GetWeekDate.prototype.init=function(time){
     if($('#pageType').val()=="today"){//如果是tender_list_week.jsp页面
         if(new Date(time).getTime() < new Date('2015/07/12 23:59:59').getTime()){//特殊处理时间小于20150712
             $('.qishu').html('3');
-            $('.total_list_btn').attr("onclick","showWeekList('2015-07-06 09:00:00','2015-07-12 23:59:59')");
+            $('.total_list_btn').attr("onclick","showWeekList('2015-07-03 09:00:00','2015-07-12 23:59:59')");
             return false;
         }
         this.todayData(json);
