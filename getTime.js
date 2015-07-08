@@ -1,7 +1,3 @@
-/**
- * [GetWeekDate description]
- * GetWeekDate  根据服务器当前时间 获取当前一周内的日起
- */
 function GetWeekDate(time){
     var now = new Date(time); //当前日期 
     this.nowDayOfWeek = now.getDay(); //今天本周的第几天
@@ -62,12 +58,13 @@ GetWeekDate.prototype.getQishu=function(time){//获得本周是指定日期(7.12
     var diff= oNDate.getTime()-oEDate.getTime();
     //console.log(diff)
     //console.log("相差天："+diff/(24*60*60*1000))
-    //console.log("相差期数："+Math.ceil(parseInt(diff/(24*60*60*1000))/7))
-    return Math.ceil(parseInt(diff/(24*60*60*1000))/7);
+    //console.log("相差期数："+parseInt(diff/(24*60*60*1000))/7)
+    //console.log("取整期数："+Math.floor(parseInt(diff/(24*60*60*1000))/7))
+    return (diff/(24*60*60*1000))/7;
 }
 
 GetWeekDate.prototype.getWeeksDates=function(time){//获取历史周排行的周一到周日时间段
-    var qishu = this.qishu?this.qishu:this.getQishu(time);
+    var qishu = (this.qishu || this.qishu==0)?this.qishu:this.getQishu(time);
     //var qishu=this.getQishu(time);
     
     var WeeksTimes=[];//存放时间的二维数组
@@ -94,10 +91,17 @@ GetWeekDate.prototype.getWeeksDates=function(time){//获取历史周排行的周
 
 GetWeekDate.prototype.todayData=function(json){//处理tender_list_week.jsp页面
     var oQishu=$('.qishu');
-    var oThisWeekListBtn=$('.total_list_btn');//查看本周排行榜按钮
-    var sTime=this.getWeekStartDate()+" "+this.beginHour,
+        iQishu=this.qishu;//期数+1是因为，相差0期就是第1期
+        oThisWeekListBtn=$('.total_list_btn'),//查看本周排行榜按钮
+        sTime=this.getWeekStartDate()+" "+this.beginHour,
         eTime=this.getWeekEndDate()+" "+this.endHour;
-    oQishu.html(json.qishu+3);//1、修改期数
+    //1、修改期数
+        //console.log("相差周:"+iQishu);
+    if(/^[1-9]\d*$/.test(iQishu) || iQishu==0){//整数 +3
+        oQishu.html(iQishu*1+3); 
+    }else{
+        oQishu.html(Math.floor(iQishu)*1+4);
+    }
     oThisWeekListBtn.attr("onclick","showWeekList('"+sTime+"','"+eTime+"')");//2、修改查看本周排行榜的起止时间
 }
 
@@ -108,15 +112,28 @@ GetWeekDate.prototype.historyData=function(time){//处理tender_list_week.jsp页
         aThisWeekYMD=this.getAWeedkYMD(),//本周周一~周日的年月日
         aThisWeekDates=this.getWeeksDates(time);//获取历史周排行的周一到周日时间段
         iQishu=this.qishu;
+        //console.log("相差周:"+iQishu);
     
-    oQishu.html(iQishu*1+3); //期数+3，因为从第三期开始
-    for (var i = 0; i < aThisWeekYMD.length; i++) {//给顶部时间追加时间
+    //1、修改期数，+4是加上前3期，在+1是如果间隔3期，当前就是第4期
+        //如果时间23:59:59是正整数（-1），如果是0整数(3)，如果是非整数（向下取整），或负数(向上取整)但是负数不考虑
+    //oQishu.html(iQishu*1+3);
+    if(/^[1-9]\d*$/.test(iQishu) || iQishu==0){//整数 +3
+        oQishu.html(iQishu*1+3); 
+    }else{
+        oQishu.html(Math.floor(iQishu)*1+4);
+    }
+    
+    
+    //2、给顶部时间追加时间
+    for (var i = 0; i < aThisWeekYMD.length; i++) {
         var str='<li data-time="'+aThisWeekYMD[i][0]+'">'+aThisWeekYMD[i][1]+'</li>';
         $(str).appendTo(oDateList);
     };
-    if(iQishu>1){//
+    
+    //3、给历史周排行榜添加周期数
+    if(this.qishu>1){//如果相差的期数大于1期
         //console.dir(aThisWeekDates)
-        for (var j = 0; j < aThisWeekDates.length-1; j++) {//给顶部时间追加时间
+        for (var j = 0; j < aThisWeekDates.length-1; j++) {
             var iQiNum=j+4;
             var str='<li onclick="showWeekList(\''+aThisWeekDates[j][0]+'\',\''+aThisWeekDates[j][1]+'\')">第'+iQiNum+'期</li>';
             $(str).prependTo(oHistoryList);
@@ -126,14 +143,25 @@ GetWeekDate.prototype.historyData=function(time){//处理tender_list_week.jsp页
 }
 
 GetWeekDate.prototype.init=function(time){
-    var iQishu=this.getQishu(time),
+    var iQishu=this.getQishu(time),//期数+1是因为，相差0期就是第1期
         json={};
     json.qishu=iQishu;
     this.qishu=iQishu;
 
     if($('#pageType').val()=="today"){//如果是tender_list_week.jsp页面
+        if(new Date(time).getTime() < new Date('2015/07/12 23:59:59').getTime()){//特殊处理时间小于20150712
+            $('.qishu').html('3');
+            $('.total_list_btn').attr("onclick","showWeekList('2015-07-06 09:00:00','2015-07-12 23:59:59')");
+            return false;
+        }
         this.todayData(json);
     }else if($('#pageType').val()=="history"){
+        if(new Date(time).getTime() < new Date('2015/07/12 23:59:59').getTime()){//特殊处理时间小于20150712
+            $('.qishu').html('3');
+            $('#dateList').addClass('dateList2').html('<li data-time="2015-07-03">07月03日</li><li data-time="2015-07-04">07月04日</li><li data-time="2015-07-05">07月05日</li><li data-time="2015-07-06">07月06日</li><li data-time="2015-07-07">07月07日</li><li data-time="2015-07-08">07月08日</li><li data-time="2015-07-09">07月09日</li><li data-time="2015-07-10">07月10日</li><li data-time="2015-07-11">07月11日</li><li data-time="2015-07-12">07月12日</li>');
+            $('#history_cont').html('<li onclick="showWeekList(\'2015-06-26 09:00:00\',\'2015-07-02 23:59:59\')">第二期</li><li onclick="showWeekList(\'2015-06-19 12:00:00\',\'2015-06-25 23:59:59\')">第一期</li>');
+            return false;
+        }
         this.historyData(time);
     }
     //console.dir(this.getWeeksDates(time));
