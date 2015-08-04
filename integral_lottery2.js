@@ -2,7 +2,7 @@ $.fn.moveUp=function(options){
     var defaults={  
         moveObj:'.tempWrap',//滚动的对象  
         cloneCont:'.contUL',//要复制的内容外层obj  
-        childElement:'.contUL li',//复制的一个内容的子元素  
+        childElement:'.contUL li',//复制的一个内容的子元素
         num:'5',//滚动的个数  
         time:'15'  
     };  
@@ -16,9 +16,6 @@ $.fn.moveUp=function(options){
             oneElementHeight=c.find(opts.childElement).eq(0).height(),//一个内容的高度  
             limitHeight=oneElementHeight*opts.num,//
             timer=null;
-        //alert(c.find(opts.cloneCont).html())
-        //console.log(oneElementHeight+"||"+c.find(opts.childElement).length)
-        //alert($tempWrap.height())
         
         if($tempWrap.height()> limitHeight ){
             timer=setInterval(domove,opts.time);  
@@ -33,8 +30,8 @@ $.fn.moveUp=function(options){
         } 
         c.find('.contUL').hover(function(){  
             clearInterval(timer);  
-        },function(){  
-            if($tempWrap.height()> limitHeight){  
+        },function(){ 
+            if($tempWrap.height()> c.find(opts.childElement).eq(0).height()*opts.num){  
                 timer=setInterval(domove,opts.time); 
                 if(c.find(opts.cloneCont).length==1){//解决初始化没滚动，但是异步添加数据后，鼠标放上去却滚动了，但是滚动没有追加内容
                     $tempWrap.append(clone);
@@ -47,7 +44,7 @@ var lottery={
     index:-1,   //当前转动到哪个位置，起点位置
     count:0,    //总共有多少个位置
     timer:0,    //setTimeout的ID，用clearTimeout清除
-    speed:20,   //初始转动速度
+    speed:50,   //初始转动速度
     times:0,    //转动次数
     cycle:50,   //转动基本次数：即至少需要转动多少次再进入抽奖环节
     prize:-1,   //中奖位置
@@ -99,18 +96,18 @@ var lottery={
                 _that.times=0;
                 _that.click=false;
             },500);
-        }else{
+        }else{//还在转
             if (this.times<this.cycle) {
                 this.speed -= 10;
             }else if(this.times==this.cycle) {
                 //var index = Math.random()*(this.count)|0;
                 var index = datas.index; // 这里传中奖的位置
                 this.prize = index;      
-            }else{
+            }else{//转动次数大于圈数
                 if (this.times > this.cycle+10 && ((this.prize==0 && this.index==7) || this.prize==this.index+1)) {// 第二个会出现
-                    this.speed +=30;
+                    this.speed +=100;
                 }else{
-                    this.speed +=15;
+                    this.speed +=35;
                 }
             }
             if (this.speed<40) {
@@ -138,7 +135,7 @@ var lottery={
     showRecordList:function(){
         $.post("${path}/activity_turntableRecordList", function(data){
             $("#lotteryRecordList").html(data);
-            $(".pic6").find('.contUL').eq(1).html(data);
+            $(".pic4").find('.contUL').eq(1).html(data);
         });
     }
 };
@@ -204,7 +201,7 @@ function init(){
     $('.ruleBtn').live('click',function(){
         $("#lotteryResult,#mask").hide();
         setTimeout(function(){
-            $('html,body').stop().animate({'scrollTop':$('#pic4').offset().top+'px'},800);
+            $('html,body').stop().animate({'scrollTop':$('div.pic3').offset().top+'px'},800);
         },500);
     });
 }
