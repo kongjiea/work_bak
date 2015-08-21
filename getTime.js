@@ -13,7 +13,7 @@ function GetWeekDate(time){
 
 GetWeekDate.prototype.date2str=function(x,y){//date2str(new Date(curTime),"yyyy-MM-dd")
     var z ={y:x.getFullYear(),M:x.getMonth()+1,d:x.getDate(),h:x.getHours(),m:x.getMinutes(),s:x.getSeconds()};  
-    return y.replace(/(y+|M+|d+|h+|m+|s+)/g,function(v) {return ((v.length>1?"0":"")+eval('z.'+v.slice(-1))).slice(-(v.length>2?v.length:2))});  
+    return y.replace(/(y+|M+|d+|h+|m+|s+)/g,function(v) {return ((v.length>1?"0":"")+eval('z.'+v.slice(-1))).slice(-(v.length>2?v.length:2))});   
 }
 
 GetWeekDate.prototype.formatDate=function(date){//格局化日期：yyyy-MM-dd 

@@ -1,0 +1,77 @@
+seajs  exports 和module.exports区别   module.exports是暴露整个模块理论上只能出现一次， 而exports是暴露其中一个模块 可以出现多次
+
+1、
+fixed定位到底部
+键盘顶上去
+http://www.cnblogs.com/yexiaochai/p/3561939.html
+http://blog.csdn.net/liu__hua/article/details/40106595
+
+2、
+pointer-events: none  组织冒泡
+http://segmentfault.com/q/1010000000701488
+http://segmentfault.com/q/1010000000691822  （方法一：使用fastclick，这个可以非常完美的解决点穿问题。 方法二：在touchend事件回调中加入preventDefault, 并在下一层中加上pointer-events:none。）
+
+3、
+屏幕旋转
+
+
+4、click 300ms的延迟
+
+5、hui框架的 开发规范，和ie兼容 hack
+
+6、云盘note文件 640-320布局方案，和自己写的@media代码
+
+7、http://wqs.jd.com/promote/2015/618party/again_mq.html?suin=4584607272&hbid=749b946176d4b8f35407c79ab1e63263&yc=1&PTAG=17054.1.1&_wv=50177&_share=mq 整一下京东这个背景
+
+8/ media的多种写法 参考链接：http://www.cnblogs.com/lhb25/archive/2012/12/04/css3-media-queries.html
+				http://www.w3cplus.com/content/css3-media-queries
+				
+				
+	a、@media screen and (min-device-width: 1366px)
+	b.@media screen and (min-width: 1366px)
+	c.@media only screen 
+  		and (min-device-width: 320px) 
+  		and (max-device-width: 480px)
+  		and (-webkit-min-device-pixel-ratio: 2) {
+
+	}
+
+	/* Portrait */
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 480px)
+  and (-webkit-min-device-pixel-ratio: 2)
+  and (orientation: portrait) {
+}
+
+/* Landscape */
+@media only screen 
+  and (min-device-width: 320px) 
+  and (max-device-width: 480px)
+  and (-webkit-min-device-pixel-ratio: 2)
+  and (orientation: landscape) {
+
+} 
+	d.<link href="swordair.css" media="screen and (min-width: 400px)">
+
+
+9.京东device-pixel-ratio像素比的写法
+	参考链接http://st.360buyimg.com/m/css/2014/index/home_2015_5_26.css?v=jd2015050531
+@media only screen and(-webkit-min-device-pixel-ratio:1.3),only screen and(min--moz-device-pixel-ratio:1.3),only screen and(min-resolution: 200dpi) {
+    .home-client-icon-disappear:after {
+        width:25px;
+        height: 25px;
+        background-image: url(/m/images/index/icon-close@2x.png);
+        -moz-background-size: 25px 25px;
+        -o-background-size: 25px 25px;
+        -webkit-background-size: 25px 25px;
+        background-size: 25px 25px;
+        content: "";
+    }
+}
+
+10 js获取本周一，周日 http://zhidao.baidu.com/question/1765983893591213660.html?fr=iks&word=js+%BB%F1%C8%A1%C9%CF%B8%F6%D4%C2&ie=gbk	
+	http://www.itnose.net/detail/6054611.html
+	http://www.xuebuyuan.com/840012.html
+极盗者
+碟中谍5
