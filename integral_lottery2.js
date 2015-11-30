@@ -34,12 +34,35 @@ $.fn.moveUp=function(options){
             if($tempWrap.height()> c.find(opts.childElement).eq(0).height()*opts.num){  
                 timer=setInterval(domove,opts.time); 
                 if(c.find(opts.cloneCont).length==1){//解决初始化没滚动，但是异步添加数据后，鼠标放上去却滚动了，但是滚动没有追加内容
-                    $tempWrap.append(clone);
+                	$tempWrap.append(clone);
                 }
             }   
         });  
     });  
 }; 
+$.fn.intermittentMoveUp=function(options){//友情链接滚动
+	var defaults = {//初始化参数
+		objChild:'li',
+	    moveHeight:30,    
+	    time:2000   
+	}; 
+	var opts =$.extend({},defaults,options);//扩展参数
+	var a=$(this);
+	var top=0;
+	var timer;
+	a.find(opts.objChild).first().clone().appendTo(a);//克隆追加第一个子对象
+	timer=setInterval(moveUp,opts.time);
+	a.hover(function(){clearInterval(timer)},function(){timer=setInterval(moveUp,opts.time)});
+	//var endHeight=a.height();//追加子对象后的总高度
+	function moveUp(){
+		top=top+opts.moveHeight;
+		if(top>=a.height()){
+			a.css('marginTop','0px');
+			top=opts.moveHeight;
+		}
+		a.stop().animate({'marginTop':-top+'px'});
+	}
+};
 var lottery={
     index:-1,   //当前转动到哪个位置，起点位置
     count:0,    //总共有多少个位置
@@ -89,12 +112,12 @@ var lottery={
             //alert("中奖了"+datas.prize);
             var _that=this;
             setTimeout(function(){
-                $('#mask2').hide();
-                $("#lotteryResult,#mask").show();
-                _that.showRecordList();
-                _that.prize=-1;
-                _that.times=0;
-                _that.click=false;
+            	$('#mask2').hide();
+            	$("#lotteryResult,#mask").show();
+            	_that.showRecordList();
+            	_that.prize=-1;
+            	_that.times=0;
+            	_that.click=false;
             },500);
         }else{//还在转
             if (this.times<this.cycle) {
@@ -124,69 +147,76 @@ var lottery={
             this.draw(datas);
             return true;
         }else if(datas.cishu*1==0 || datas.cishu==""){
-            $("#mask2").hide();
-            $("#lotteryResult,#mask").show();
-            return false;
+        	$("#mask2").hide();
+        	$("#lotteryResult,#mask").show();
+        	return false;
         }else{
             //alert("中奖次数没有了")
             return false;
         }
     },
     showRecordList:function(){
-        $.post("${path}/activity_turntableRecordList", function(data){
-            $("#lotteryRecordList").html(data);
-            $(".pic4").find('.contUL').eq(1).html(data);
-        });
+    	$.post("${path}/activity_turntableRecordList", function(data){
+    		$("#lotteryRecordList").html(data);
+    		$(".pic4").find('.contUL').eq(1).html(data);
+    	});
+    	$.post("${path}/activity_turntableRecordList",{awardType:4}, function(data){
+    		if($.trim(data)!=""){
+    			var ul=$(".list_SWPrize").find('.pigNews_ul');
+    			ul.html(data);
+    			ul.find('li').first().clone().appendTo(ul);//克隆追加第一个子对象
+    		}
+		});
     }
 };
-function init(){    
-    //我的奖品
-    $("#myPrize").click(function(){
-        //step1.获取userId
-        var userId = $("#currUserId").val();
-        //step2.判断
-        if(userId=='' || userId<=0){
-            return ;
-        }
-        //stpe3.调用,回填
-        $.post("${path}/activity_turntableRecordList?userId="+userId, function(data){
-            $("#lotteryResultContent").html("");//先清空数据
-            $("#lotteryResultContent").html(data);
-            $("#lotteryResult").show();
-        });
-    });
-    
-    lottery.init('lottery_box',30);
+function init(){	
+	//我的奖品
+	$("#myPrize").click(function(){
+		//step1.获取userId
+		var userId = $("#currUserId").val();
+		//step2.判断
+		if(userId=='' || userId<=0){
+			return ;
+		}
+		//stpe3.调用,回填
+		$.post("${path}/activity_turntableRecordList?userId="+userId, function(data){
+    		$("#lotteryResultContent").html("");//先清空数据
+			$("#lotteryResultContent").html(data);
+    		$("#lotteryResult").show();
+		});
+	});
+	
+	lottery.init('lottery_box',30);
     $("#lottery,.againBtn").live('click',function(){
-        if($(this).hasClass('againBtn')){
-            $("#lotteryResultContent").html("");
-            $("#lotteryResult,#mask").hide();
-        }
-        
-        if (lottery.click) {
+    	if($(this).hasClass('againBtn')){
+    		$("#lotteryResultContent").html("");
+    		$("#lotteryResult,#mask").hide();
+    	}
+    	
+		if (lottery.click) {
             return false;
         }else{
-            $.post("${path}/activity_turntableLottery", function(data){
-                $('#mask2').show();
-                //先清空数据
-                $("#lotteryResultContent").html("");
-                //step1.回填数据
-                $("#lotteryResultContent").html(data);
-                var json={
-                    cishu:$("#lotteryCount").val(),
-                    index:$("#level").val()
-                };
-                var responseCode = $("#responseCode").val();
-                if($("#lotteryCount").val()==""){
-                    if(responseCode==608){//积分不足
-                        json.cishu=0;
-                        $("#lotteryCount").val("0");
-                        $('#cishu').html($("#lotteryCount").val());
-                    };
-                }else{
-                    $('#cishu').html($("#lotteryCount").val());
-                }
-                //alert("次数："+json.cishu+"||位置："+json.index);
+        	$.post("${path}/activity_turntableLottery", function(data){
+        		$('#mask2').show();
+	        	//先清空数据
+	    		$("#lotteryResultContent").html("");
+	    		//step1.回填数据
+	    		$("#lotteryResultContent").html(data);
+	    		var json={
+			        cishu:$("#lotteryCount").val(),
+			        index:$("#level").val()
+			    };
+	    		var responseCode = $("#responseCode").val();
+	    		if($("#lotteryCount").val()==""){
+	    			if(responseCode==608){//积分不足
+	    				json.cishu=0;
+		    			$("#lotteryCount").val("0");
+		    			$('#cishu').html($("#lotteryCount").val());
+	    			};
+	    		}else{
+	    			$('#cishu').html($("#lotteryCount").val());
+	    		}
+			    //alert("次数："+json.cishu+"||位置："+json.index);
                 lottery.data=json;
                 lottery.speed=50;
                 //$('#cishu').html($("#lotteryCount").val());
@@ -199,18 +229,18 @@ function init(){
     });
     
     $('.ruleBtn').live('click',function(){
-        $("#lotteryResult,#mask").hide();
-        setTimeout(function(){
+    	$("#lotteryResult,#mask").hide();
+    	setTimeout(function(){
             $('html,body').stop().animate({'scrollTop':$('div.pic3').offset().top+'px'},800);
-        },500);
+    	},500);
     });
 }
 
 
 $('.closeBtn').live('click',function(){
-    $("#lotteryResultContent").html("");
-    $('.pop_box,#mask,#mask2').hide();
+	$("#lotteryResultContent").html("");
+	$('.pop_box,#mask,#mask2').hide();
 });
 $('#myPrize').click(function(){
-    $('.pop_box,#mask').show();
+	$('.pop_box,#mask').show();
 });
